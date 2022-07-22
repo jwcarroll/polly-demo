@@ -1,19 +1,18 @@
-using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using System.Threading;
 
 namespace polly_demo
 {
+
     public class EchoService
     {
-        private Int32 DelayBySeconds { get; set; } = 0;
+        private Delay DelaySeconds { get; set; } = new Delay();
 
         private Int32 NumExecutions { get; set; } = 0;
 
         private Int32 FailAfterNExecutions { get; set; } = 0;
 
-        private Int32 FailForNSeconds { get; set; } = 0;
+        private Delay FailForNSeconds { get; set; } = new Delay();
 
         private Int32 SystemDownAfterNExecutions { get; set; } = 0;
 
@@ -27,7 +26,7 @@ namespace polly_demo
 
         public String Echo(String msg)
         {
-            Delay(DelayBySeconds);
+            Delay(DelaySeconds.Recalculate());
             IncrementExecutions(1);
             HandleAlwaysFailFault();
             HandleExecutionFault();
@@ -50,15 +49,27 @@ namespace polly_demo
             return this;
         }
 
-        public EchoService FailFor(Int32 seconds)
+        public EchoService FailForFixedTime(Int32 seconds)
         {
-            FailForNSeconds = seconds;
+            FailForNSeconds.SetFixedDelay(seconds);
             return this;
         }
 
-        public EchoService DelayBy(Int32 seconds)
+        public EchoService FailForRandomTime(Int32 lowerBound, Int32 upperBound)
         {
-            DelayBySeconds = seconds;
+            FailForNSeconds.SetDelayRange(lowerBound, upperBound);
+            return this;
+        }
+
+        public EchoService FixedDelay(Int32 seconds)
+        {
+            DelaySeconds.SetFixedDelay(seconds);
+            return this;
+        }
+
+        public EchoService RandomDelay(Int32 lowerBound, Int32 upperBound)
+        {
+            DelaySeconds.SetDelayRange(lowerBound, upperBound);
             return this;
         }
 
@@ -101,12 +112,12 @@ namespace polly_demo
 
         private void HandleTimingFault()
         {
-            if (FailForNSeconds <= 0)
+            if (FailForNSeconds.DelayTimeSpan <= TimeSpan.Zero)
             {
                 return;
             }
 
-            if (Timer.Elapsed.TotalSeconds < FailForNSeconds)
+            if (Timer.Elapsed < FailForNSeconds.DelayTimeSpan)
             {
                 throw new TransientException($"Execution Time in Seconds: {Timer.Elapsed.TotalSeconds}");
             }
@@ -135,11 +146,11 @@ namespace polly_demo
             NumExecutions += increment;
         }
 
-        private void Delay(int delayBySeconds)
+        private void Delay(TimeSpan delay)
         {
-            if (delayBySeconds > 0)
+            if (delay > TimeSpan.Zero)
             {
-                Thread.Sleep(TimeSpan.FromSeconds(delayBySeconds));
+                Thread.Sleep(delay);
             }
         }
     }
