@@ -16,6 +16,8 @@ namespace polly_demo
 
         private Int32 SystemDownAfterNExecutions { get; set; } = 0;
 
+        private Delay SystemDownForNSeconds { get; set; } = new Delay();
+
         public Boolean AlwaysFail { get; set; } = false;
 
         private Stopwatch Timer { get; set; } = new Stopwatch();
@@ -32,6 +34,7 @@ namespace polly_demo
             HandleExecutionFault();
             HandleTimingFault();
             HandleSystemDownFault();
+            HandleSystemDownTimingFault();
             HandleRandomFault();
 
             return msg;
@@ -46,6 +49,12 @@ namespace polly_demo
         public EchoService SystemDownAfter(Int32 executions)
         {
             SystemDownAfterNExecutions = executions;
+            return this;
+        }
+
+        public EchoService SystemDownForFixedTime(Int32 seconds)
+        {
+            SystemDownForNSeconds.SetFixedDelay(seconds);
             return this;
         }
 
@@ -107,6 +116,19 @@ namespace polly_demo
             if (NumExecutions >= SystemDownAfterNExecutions)
             {
                 throw new SystemDownException($"System down after {SystemDownAfterNExecutions} executions");
+            }
+        }
+
+        private void HandleSystemDownTimingFault()
+        {
+            if (SystemDownForNSeconds.DelayTimeSpan <= TimeSpan.Zero)
+            {
+                return;
+            }
+
+            if (Timer.Elapsed < SystemDownForNSeconds.DelayTimeSpan)
+            {
+                throw new SystemDownException($"System down after {SystemDownForNSeconds.DelayTimeSpan.TotalSeconds} seconds");
             }
         }
 

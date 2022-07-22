@@ -5,14 +5,19 @@ using Serilog.Sinks.SystemConsole.Themes;
 ConfigureLogging();
 
 Scenario.RunTransietErrors();
-//Scenario.RunTransietErrorsManualRetry();
-//Scenario.RunTransietErrorsWithRetryPolicy();
-//Scenario.RunTransietErrorsWithLongServiceInteruption();
-//Scenario.RunExpensiveCallWithSystemDown();
-//Scenario.RunRecoveryRetryAction();
-//Scenario.RunRecoveryWithFallback();
-//Scenario.RunExpensiveCallWithCaching();
-
+// Scenario.RunTransietErrorsManualRetry();
+// Scenario.RunTransietErrorsWithRetryPolicy();
+// Scenario.RunTransietErrorsWithLongServiceInteruptionFixedRetries();
+// Scenario.RunTransietErrorsWithLongServiceInteruptionExponentialBackoff();
+// Scenario.RunExpensiveCallWithSystemDown();
+// Scenario.RunExpensiveCallWithSystemDownUsingCircuitBreaker();
+// Scenario.RunExpensiveCallWithSystemDownCombinedRetryAndCircuitBreaker();
+// Scenario.RunExpensiveCallWithSystemDownAllowCircuitToReOpen();
+// Scenario.FailingActionWithSimpleRetry();
+// Scenario.FailingActionWithRecoveryPolicy();
+// Scenario.FailingActionWithRecoveryAndRetry();
+// Scenario.RunRecoveryWithFallback();
+// Scenario.RunExpensiveCallWithCaching();
 
 static void ConfigureLogging()
 {
